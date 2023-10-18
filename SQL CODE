@@ -1,7 +1,7 @@
 --CREATE EMPLOYEE
 
 CREATE TABLE Employee (
-    EmployeeID INT PRIMARY KEY,
+    EmpeID INT PRIMARY KEY,
     FirstName VARCHAR(50),
     LastName VARCHAR(50),
     JOB VARCHAR(100),
@@ -13,7 +13,7 @@ CREATE TABLE Employee (
 
 -- Insert data into the "Employee" table
 
-INSERT INTO Employee (EmployeeID, FirstName, LastName, JOB, HireDate, LOC)
+INSERT INTO Employee (EmpID, FirstName, LastName, JOB, HireDate, LOC)
 VALUES
     (1, 'Rishita', 'Das', 'Clerk', '1981-03-02', 'DALLAS'),
     (2, 'Nisha', 'Banerjee', 'Salesman', '1981-03-03', 'CHICAGO'),
