@@ -1,0 +1,32 @@
+--CREATE EMPLOYEE
+
+CREATE TABLE Employee (
+    EmployeeID INT PRIMARY KEY,
+    FirstName VARCHAR(50),
+    LastName VARCHAR(50),
+    JOB VARCHAR(100),
+    HireDate DATE,
+      LOC VARCHAR(100)
+);
+
+------------------------------------------------------------------------------------------
+
+-- Insert data into the "Employee" table
+
+INSERT INTO Employee (EmployeeID, FirstName, LastName, JOB, HireDate, LOC)
+VALUES
+    (1, 'Rishita', 'Das', 'Clerk', '1981-03-02', 'DALLAS'),
+    (2, 'Nisha', 'Banerjee', 'Salesman', '1981-03-03', 'CHICAGO'),
+    (3, 'Shriya', 'Mudras', 'Manager', '1981-02-02', 'CHICAGO'),
+    (4, 'Pratyush', 'Pramanik', 'Trainee', '1981-02-04', 'NEW YORK'),
+    (5, 'Arkaprava', 'Ganguly', 'Clerk', '2008-01-03', 'CHICAGO'),
+    (6, 'Poulomi', 'Deb', 'Analyst', '1982-01-23', 'CHICAGO'),
+    (7, 'Krishna', 'Samanta', 'Clerk', '1987-03-19', 'DALLAS'),
+    (8, 'Padi Sai', 'Shirisha', 'Manager', '1980-04-17', 'Kolkata'),
+    (9, 'Dipankar', 'Adhikary', 'President', '1981-08-08', 'Kolkata'),
+    (10, 'Trapti', 'Rajput', 'Salesman', '1981-02-22', 'NEW YORK'),
+    (11, 'Nishi', 'Sharma', 'Clerk', '1987-06-23', 'DALLAS'),
+    (12, 'Pranab', 'Sarkar', 'Analyst', '1981-02-20', 'Kolkata'),
+    (13, 'Arkaprava', 'Ganguly', 'Clerk', '1981-03-01', 'CHICAGO'),
+    (14, 'Kushal', 'Chakrabarty', 'Salesman', '1981-12-03', 'Kolkata'),
+    (15, 'Pratyush', 'Pramanik', 'Trainee', '1981-04-02', 'NEW YORK');
