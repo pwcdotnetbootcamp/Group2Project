@@ -1,0 +1,236 @@
+EmpController.cs
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using EmpLib.Models;
+using EmpLib;
+
+namespace Practice5.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class EmpController : ControllerBase
+    {          
+
+        [HttpGet]
+        public IEnumerable<Employee> GetEmp()
+        {        
+           return Class1.getEmps();
+            
+        }
+
+
+        [HttpPut("updateEmp/{EmpID:int}/{FirstName}/{JOB}/{LOC}")]
+        public ActionResult<string> UpdateEmp(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            if (EmpLib.Class1.update(EmpID, FirstName, JOB, LOC)){
+                return "Employee Table has been updated";
+            }
+            return "Failed !!!";
+        }
+
+
+        [HttpDelete("DeleteEmp/{EmpID:int}")]
+        public ActionResult<string> DeleteEmp(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            if (EmpLib.Class1.delete(EmpID, FirstName, JOB, LOC))
+            {
+                return "Employee Data has been deleted";
+            }
+            return "Failed !!!";
+        }
+
+
+        [HttpPost]
+        public ActionResult<string> InsertEmp(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            if (EmpLib.Class1.insert(EmpID, FirstName, JOB, LOC))
+            {
+                return "Employee has been inserted";
+            }
+            return "Failed !!!";
+        }
+
+    }
+}
+
+
+
+
+
+
+
+
+
+EmpLib -> Models -> Employee.cs 
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace EmpLib.Models
+{
+    public class Employee
+    {
+        public int EmpID { get; set; }
+        public string FirstName { get; set; }
+
+        public string JOB { get; set; }
+
+        public string LOC { get; set; }
+
+        public Employee() { }
+
+        public Employee(int empID, string firstName, string jOB, string lOC)
+        {
+            EmpID = empID;
+            FirstName = firstName;
+            JOB = jOB;
+            LOC = lOC;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+EmpLib -> Class1.cs
+
+
+using System;
+using System.Data.SqlClient;
+using System.Data;
+using System.Collections.Generic;
+using EmpLib.Models;
+
+
+namespace EmpLib
+{
+    public class Class1
+    {
+        public static List<Employee> employees = new List<Employee>();              
+
+        public static Boolean update(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            try
+            {
+                SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True");
+                con.Open();
+
+                SqlCommand cmd = new SqlCommand($"Update Emp set JOB='{JOB}' where EmpID='{EmpID}'", con);
+                SqlCommand cmd2 = new SqlCommand($"Update Emp set FirstName='{FirstName}' where EmpID='{EmpID}'", con);
+                SqlCommand cmd3 = new SqlCommand($"Update Emp set LOC='{LOC}' where EmpID='{EmpID}'", con);
+
+                int recUp = cmd.ExecuteNonQuery();
+                int recUp2 = cmd2.ExecuteNonQuery();  
+                int recUp3 = cmd3.ExecuteNonQuery();
+
+                return true;
+            }
+            catch (Exception e)
+            { return false; }
+            }
+
+
+        
+            public static Boolean delete(int EmpID, string FirstName, string JOB, string LOC)
+            {
+                try
+                {
+                    SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True");
+                    con.Open();
+
+                    SqlCommand cmd = new SqlCommand($"Delete from Emp where EmpID='{EmpID}' and FirstName='{FirstName}' and JOB='{JOB}' and LOC='{LOC}'", con);
+
+                    int recDel = cmd.ExecuteNonQuery();                    
+                    return true;
+                }
+                catch (Exception e) { return false; }
+            }
+
+
+        public static Boolean insert(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            try
+            {
+                SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True");
+                con.Open();                
+
+                SqlCommand cmd = new SqlCommand("Insert into Emp values(@EmpID, @FirstName, @JOB, @LOC)", con);
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.AddWithValue("@EmpID", EmpID);
+                cmd.Parameters.AddWithValue("@FirstName", FirstName);
+                cmd.Parameters.AddWithValue("@JOB", JOB);
+                cmd.Parameters.AddWithValue("@LOC", LOC);
+
+                int recDel = cmd.ExecuteNonQuery();
+                
+                return true;
+            }
+            catch (Exception e) { return false; }
+        }
+
+
+
+
+        public static List<Employee> getEmps()
+        {
+            try
+            {                
+                SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True");
+                con.Open();
+
+                SqlCommand cmd = new SqlCommand("Select * from Emp", con);
+                cmd.CommandType = CommandType.Text;
+
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                employees = new List<Employee>();
+
+                while (rdr.Read())
+                {
+                    Employee e = new Employee();
+                    //e.id = Convert.ToInt32(rdr["id"]);
+                    e.EmpID = rdr.GetInt32("EmpID");
+                    e.FirstName = rdr.GetString("FirstName");
+                    e.JOB = rdr.GetString("JOB");
+                    e.LOC = rdr.GetString("LOC");
+
+                    employees.Add(e);
+                }
+
+                return employees;
+            }
+
+            catch { return null; }
+
+        }
+
+    }
+}
+
+
+
+    
+
+
+
