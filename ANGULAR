@@ -12,10 +12,360 @@ ng generate service insert
 ng generate service delete
 ng generate service update
 
-STEP 3: //Edit all files//
+STEP 3: //Edit api files//
+
+1. EmpController.cs 
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using EmpLib.Models;
+using EmpLib;
+using Microsoft.AspNetCore.Cors;
+
+namespace Practice5.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class EmpController : ControllerBase
+    {
+
+        [HttpGet]
+        [Route("Emps")]
+        [EnableCors("AllowOrigin")]
+        public IEnumerable<Employee> GetEmp()
+        {
+            return Class1.getEmps();
+
+        }
 
 
-1. AddComponent.ts
+        [HttpGet]
+        
+        [Route("updateEmp/{EmpID:int}/{FirstName}/{JOB}/{LOC}")]
+        [EnableCors("AllowOrigin")]
+        public IEnumerable<Employee> UpdateEmp(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            //if (EmpLib.Class1.update(EmpID, FirstName, JOB, LOC))
+            //{
+            //    return "Employee Table has been updated";
+            //}
+            //return "Failed !!!";
+            return (EmpLib.Class1.update(EmpID, FirstName, JOB, LOC));
+        }
+
+
+        [HttpGet]
+        [Route("DeleteEmployees/{EmpID:int}/{FirstName}/{JOB}/{LOC}")]
+        [EnableCors("AllowOrigin")]
+        public IEnumerable<Employee> DeleteEmp(int EmpID, string FirstName, string JOB, string LOC)
+        { 
+        //    if (EmpLib.Class1.delete(EmpID, FirstName, JOB, LOC))
+        //    {
+        //        return "Employee Data has been deleted";
+        //    }
+        //    return "Failed !!!";
+        return (EmpLib.Class1.delete(EmpID, FirstName, JOB, LOC));
+        }
+
+
+        [HttpGet]
+        [Route("InsertEmployees/{EmpID:int}/{FirstName}/{JOB}/{LOC}")]
+        [EnableCors("AllowOrigin")]
+        public IEnumerable<Employee> InsertEmp(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            //if (EmpLib.Class1.insert(EmpID, FirstName, JOB, LOC))
+            //{
+            //    return "Employee has been inserted";
+            //}
+            //return "Failed !!!";
+            return (EmpLib.Class1.insert(EmpID, FirstName, JOB, LOC));
+        }
+
+    }
+}
+
+
+
+
+
+
+
+
+
+2. Employee.cs
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace EmpLib.Models
+{
+    public class Employee
+    {
+        public int EmpID { get; set; }
+        public string FirstName { get; set; }
+
+        public string JOB { get; set; }
+
+        public string LOC { get; set; }
+
+        public Employee() { }
+
+        public Employee(int empID, string firstName, string jOB, string lOC)
+        {
+            EmpID = empID;
+            FirstName = firstName;
+            JOB = jOB;
+            LOC = lOC;
+        }
+    }
+}
+
+
+
+
+
+3. Class1.cs
+
+
+
+
+using System;
+using System.Data.SqlClient;
+using System.Data;
+using System.Collections.Generic;
+using EmpLib.Models;
+using System.Reflection.Metadata.Ecma335;
+
+namespace EmpLib
+{
+    public class Class1
+    {
+        public static List<Employee> employees = new List<Employee>();
+
+        public static List<Employee> update(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            List<Employee> Employee1 = new List<Employee>();
+            try
+            {
+                SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True");
+                con.Open();
+
+                SqlCommand cmd = new SqlCommand($"Update Emp set JOB='{JOB}' where EmpID='{EmpID}'", con);
+                SqlCommand cmd2 = new SqlCommand($"Update Emp set FirstName='{FirstName}' where EmpID='{EmpID}'", con);
+                SqlCommand cmd3 = new SqlCommand($"Update Emp set LOC='{LOC}' where EmpID='{EmpID}'", con);
+
+                int recUp = cmd.ExecuteNonQuery();
+                int recUp2 = cmd2.ExecuteNonQuery();
+                int recUp3 = cmd3.ExecuteNonQuery();
+                Employee1.Add(new Employee(EmpID, FirstName, JOB, LOC));
+                return Employee1;
+                
+          
+            }
+            catch (Exception e)
+            { return null; }
+        }
+
+
+
+        public static List<Employee> delete(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            List<Employee> Employee1 = new List<Employee>();
+            try
+            {
+                SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True");
+                con.Open();
+
+                SqlCommand cmd = new SqlCommand($"Delete from Emp where EmpID='{EmpID}' and FirstName='{FirstName}' and JOB='{JOB}' and LOC='{LOC}'", con);
+
+                int recDel = cmd.ExecuteNonQuery();
+                Employee1.Add(new Employee(EmpID, FirstName, JOB, LOC));
+                return Employee1;
+            }
+            catch (Exception e)
+            { return null; }
+        }
+
+
+        public static List<Employee> insert(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            List<Employee> Employee1 = new List<Employee>();
+            try
+            {
+                SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True");
+                con.Open();
+
+                //SqlCommand cmd = new SqlCommand("Insert into Emp values(@EmpID, @FirstName, @JOB, @LOC)", con);
+                //cmd.CommandType = CommandType.Text;
+                //cmd.Parameters.AddWithValue("@EmpID", EmpID);
+                //cmd.Parameters.AddWithValue("@FirstName", FirstName);
+                //cmd.Parameters.AddWithValue("@JOB", JOB);
+                //cmd.Parameters.AddWithValue("@LOC", LOC);
+                SqlCommand cmd = new SqlCommand($"Insert into Emp values('{EmpID}', '{FirstName}', '{JOB}', '{LOC}')", con);
+
+                int recDel = cmd.ExecuteNonQuery();
+                Employee1.Add(new Employee(EmpID, FirstName, JOB, LOC));
+                return Employee1;
+            }
+            catch (Exception e) 
+            { return null; }
+        }
+
+
+
+
+        public static List<Employee> getEmps()
+        {
+            try
+            {
+                SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True");
+                con.Open();
+
+                SqlCommand cmd = new SqlCommand("Select * from Emp", con);
+                cmd.CommandType = CommandType.Text;
+
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                employees = new List<Employee>();
+
+                while (rdr.Read())
+                {
+                    Employee e = new Employee();
+                    //e.id = Convert.ToInt32(rdr["id"]);
+                    e.EmpID = rdr.GetInt32("EmpID");
+                    e.FirstName = rdr.GetString("FirstName");
+                    e.JOB = rdr.GetString("JOB");
+                    e.LOC = rdr.GetString("LOC");
+
+                    employees.Add(e);
+                }
+
+                return employees;
+            }
+
+            catch { return null; }
+
+        }
+
+    }
+}
+
+
+
+
+
+
+
+NOTE: Install nugget packages ------ Microsoft.AspNet.WebApi.Cors
+
+
+
+
+4. startup.cs
+
+
+
+
+
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Project5
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+
+            services.AddControllers();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Project5", Version = "v1" });
+            });
+            //I have Added AddCors
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin",
+                    options =>
+                        options.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                         .AllowAnyMethod());
+            });
+        }
+
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Project5 v1"));
+            }
+            app.UseRouting();
+            //I have Added in between Routing and Redirection
+            app.UseCors(x => x
+.AllowAnyOrigin()
+.AllowAnyMethod()
+.AllowAnyHeader());
+
+            // app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
+
+            //app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+        }
+    }
+}
+
+
+
+
+
+STEP 4: //Edit Angular Code//
+
+
+
+1. Appcomponent.ts
+
+
 
 
 import { Component, OnInit } from '@angular/core';
@@ -23,6 +373,7 @@ import { EmployeeService } from './employee.service';
 import { HttpClient } from '@angular/common/http'; 
 import { UpdateService } from './update.service';
 import { DeleteService } from './delete.service';
+import { InsertService } from './insert.service';
 
 
 @Component({
@@ -34,6 +385,7 @@ export class AppComponent implements OnInit {
   public studs: any[]=[{}];
   public up: any[]= [{}]; 
   public dl: any[]= [{}];
+  public ins: any[]= [{}];
   public EmpID: number= 3;
   public FirstName: string= "Nisha";
   public Job: string= "Salesman";
@@ -44,7 +396,12 @@ export class AppComponent implements OnInit {
  public Job2: string= "Salesman";
  public Loc2: string= "Mumbai";
 
-  constructor(private employee: EmployeeService, private update: UpdateService, private dell: DeleteService){  
+ public EmpID3: number= 6;
+ public FirstName3: string= "Poulomi";
+ public Job3: string= "Analyst";
+ public Loc3: string= "CHICAGO";
+
+  constructor(private employee: EmployeeService, private update: UpdateService, private dell: DeleteService, private insert: InsertService){  
 
         this.employee.getPosts().subscribe((data: any[]) => {
              this.studs = data;
@@ -56,11 +413,17 @@ export class AppComponent implements OnInit {
   console.log(data1);  
 });
 
-  this.dell.getPosts2(this.EmpID2, this.FirstName2, this.Job2, this.Loc2).subscribe((data1: any[]) => {
-    this.dl= data1;
-console.log(data1);  
+  this.dell.getPosts2(this.EmpID2, this.FirstName2, this.Job2, this.Loc2).subscribe((data2: any[]) => {
+    this.dl= data2;
+console.log(data2);  
+});
 
-  }); 
+this.insert.getPosts3(this.EmpID, this.FirstName, this.Job, this.Loc).subscribe((data1: any[]) => {
+  this.ins= data1;
+console.log(data1);  
+});
+
+
   //  constructor(private stud: Service){  
   //           this.stud.getPosts().subscribe((data: any[]) => {
   //                this.studs = data;
@@ -78,7 +441,64 @@ console.log(data1);
 
 
 
-2. AddCOmponent.html
+2. appmodule.ts
+
+
+
+
+
+
+
+import { NgModule,  NO_ERRORS_SCHEMA} from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { EmployeeService } from './employee.service';
+import { UpdateService } from './update.service';
+import { InsertService } from './insert.service';
+
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { HttpClientModule } from '@angular/common/http';
+import { DeleteService } from './delete.service';
+// import { AddEmployeeComponent } from './add-employee/add-employee.component';
+// import { RemoveEmployeeComponent } from './remove-employee/remove-employee.component';
+// import { UpdateEmployeeComponent } from './update-employee/update-employee.component';
+// import { ReadEmployeeComponent } from './read-employee/read-employee.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    // AddEmployeeComponent,
+    // RemoveEmployeeComponent,
+    // UpdateEmployeeComponent,
+    // ReadEmployeeComponent
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    AppRoutingModule,
+    HttpClientModule
+  ],
+  providers: [EmployeeService, UpdateService, DeleteService, InsertService],
+  schemas: [NO_ERRORS_SCHEMA],  
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+
+
+
+
+
+
+
+
+
+3. app.component.html
+
+
+
+
 
 
 
@@ -228,9 +648,9 @@ console.log(data1);
     </style>
 </head>
 <body>
-    <h1>Employee List</h1>
+    <h1>UPDATE EMPLOYEE</h1>
 
-    <h2>Employee Details (JSON)</h2>
+    <h2>Update Details (JSON)</h2>
     <table>
         <thead>
             <tr>
@@ -252,7 +672,7 @@ console.log(data1);
 
     <hr>
 
-    <h2>Employee List (JSON)</h2>
+    <h2>Update Employee (JSON)</h2>
     <table>
         <thead>
             <tr>
@@ -324,7 +744,7 @@ console.log(data1);
     </style>
 </head>
 <body>
-    <h1>Employee List</h1>
+    <h1>DELETE EMPLOYEE</h1>
 
     <h2>DELETE (JSON)</h2>
     <table>
@@ -348,7 +768,7 @@ console.log(data1);
 
     <hr>
 
-    <h2>Employee List (JSON)</h2>
+    <h2>Delete Employee (JSON)</h2>
     <table>
         <thead>
             <tr>
@@ -365,72 +785,119 @@ console.log(data1);
 
 
 
-3. appmodule.ts
-
-
-import { NgModule,  NO_ERRORS_SCHEMA} from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
-import { EmployeeService } from './employee.service';
-import { UpdateService } from './update.service';
-
-
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { HttpClientModule } from '@angular/common/http';
-import { DeleteService } from './delete.service';
-// import { AddEmployeeComponent } from './add-employee/add-employee.component';
-// import { RemoveEmployeeComponent } from './remove-employee/remove-employee.component';
-// import { UpdateEmployeeComponent } from './update-employee/update-employee.component';
-// import { ReadEmployeeComponent } from './read-employee/read-employee.component';
-
-@NgModule({
-  declarations: [
-    AppComponent,
-    // AddEmployeeComponent,
-    // RemoveEmployeeComponent,
-    // UpdateEmployeeComponent,
-    // ReadEmployeeComponent
-  ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    AppRoutingModule,
-    HttpClientModule
-  ],
-  providers: [EmployeeService, UpdateService, DeleteService],
-  schemas: [NO_ERRORS_SCHEMA],  
-  bootstrap: [AppComponent]
-})
-export class AppModule { }
 
 
 
 
-4. deleteservice.ts
-
-
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
-@Injectable({
-  providedIn: 'root'
-})
-export class DeleteService {
-
- 
-  // apiurl= 'https://localhost:44327/api/Emp';
-
-  constructor(private httpClient:HttpClient) { }
-  getPosts2(EmpID: number, FirstName: string, JOB: string, LOC: string): Observable<any[]> {
-     return this.httpClient.get<any[]>("https://localhost:44327/api/Emp/DeleteEmployees");
-}
-}
 
 
 
-5. employeeservice.ts
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            margin: 20px auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <h1>INSERT EMPLOYEE//</h1>
+
+    <h2>Insert Details (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>EmpID</th>
+                <th>First Name</th>
+                <th>Job</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let i of ins">
+                <td>{{i.empID}}</td>
+                <td>{{i.firstName}}</td>
+                <td>{{i.job}}</td>
+                <td>{{i.loc}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>INSERT EMPLOYEE (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Employee</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let i of ins">
+                <td>{{i | json}}</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+
+
+
+
+
+
+
+
+
+4. employee.service.ts
+
+
+
+
 
 
 import { Injectable } from '@angular/core';
@@ -453,27 +920,44 @@ import { Observable } from 'rxjs';
   }
 
       
-// export class EmployeeService {  
-//   url = 'http://localhost:44327/Api/Emp';  
-//   constructor(private http: HttpClient) { }  
-//   getPosts(): Observable<any[]> {  
-//     return this.http.get<any[]>(this.url + '/Emps');  
-//   }  
-//   }
 
 
 
-  // getPosts1(EmpID: number, FirstName: string, JOB: string, LOC: string): Observable<any> {
-  //   //  return this.httpClient.get<any>("https://localhost:44327/api/Emp/updateEmp/"+EmpID+"/"+FirstName+"/"+JOB+"/"+LOC);
-  //    return this.httpClient.get<any>(`https://localhost:44327/api/Emp/updateEmp/1/Ria/Clerk1/Mumbai`);
-  // }
+5. insert.service.ts
 
 
 
 
 
 
-6. Updateservice.ts
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class InsertService {
+
+ 
+  constructor(private httpClient:HttpClient) { }
+  getPosts3(EmpID: number, FirstName: string, JOB: string, LOC: string): Observable<any[]> {
+     return this.httpClient.get<any[]>("https://localhost:44327/api/Emp/InsertEmployees/"+EmpID+"/"+FirstName+"/"+JOB+"/"+LOC);
+}
+}
+
+
+
+
+
+
+6. update.service.ts
+
+
+
+
+
 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -491,6 +975,41 @@ export class UpdateService {
      return this.httpClient.get<any[]>("https://localhost:44327/api/Emp/updateEmp/"+EmpID+"/"+FirstName+"/"+JOB+"/"+LOC);
 }
 }
+
+
+
+
+
+
+
+7. delete.service.ts
+
+
+
+
+
+
+
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class DeleteService {
+
+  constructor(private httpClient:HttpClient) { }
+  getPosts2(EmpID: number, FirstName: string, JOB: string, LOC: string): Observable<any[]> {
+     return this.httpClient.get<any[]>("https://localhost:44327/api/Emp/DeleteEmployees/"+EmpID+"/"+FirstName+"/"+JOB+"/"+LOC);
+}
+}
+
+
+
+
+
 
 
 
