@@ -5,14 +5,12 @@ ng new Employee
 cd Employee
 ng serve
 
+
 STEP 2:
-//visual code//
-cd Employee
-ng generate component AddEmployee
-ng generate component RemoveEmployee
-ng generate component UpdateEmployee
-ng generate component ReadEmployee
 ng generate service employee
+ng generate service insert
+ng generate service delete
+ng generate service update
 
 STEP 3: //Edit all files//
 
@@ -20,24 +18,62 @@ STEP 3: //Edit all files//
 1. AddComponent.ts
 
 
-import { Component } from '@angular/core';
-import { EmployeeService } from '../employee.service';
+import { Component, OnInit } from '@angular/core';
+import { EmployeeService } from './employee.service'; 
+import { HttpClient } from '@angular/common/http'; 
+import { UpdateService } from './update.service';
+import { DeleteService } from './delete.service';
+
 
 @Component({
-  selector: 'app-add-employee',
-  templateUrl: './add-employee.component.html',
-  styleUrls: ['./add-employee.component.css']
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
 })
-export class AddEmployeeComponent {
+export class AppComponent implements OnInit {  
+  public studs: any[]=[{}];
+  public up: any[]= [{}]; 
+  public dl: any[]= [{}];
+  public EmpID: number= 3;
+  public FirstName: string= "Nisha";
+  public Job: string= "Salesman";
+  public Loc: string= "Mumbai";
 
-  constructor(private employeeService: EmployeeService) { }
+  public EmpID2: number= 3;
+ public FirstName2: string= "Nisha";
+ public Job2: string= "Salesman";
+ public Loc2: string= "Mumbai";
 
-  addEmployee(employeeData: any) {
-    this.employeeService.addEmployee(employeeData).subscribe(response => {
-      console.log('Employee added successfully:', response);
-    });
-  }
+  constructor(private employee: EmployeeService, private update: UpdateService, private dell: DeleteService){  
+
+        this.employee.getPosts().subscribe((data: any[]) => {
+             this.studs = data;
+       console.log(data);  
+        });
+
+      this.update.getPosts1(this.EmpID, this.FirstName, this.Job, this.Loc).subscribe((data1: any[]) => {
+        this.up= data1;
+  console.log(data1);  
+});
+
+  this.dell.getPosts2(this.EmpID2, this.FirstName2, this.Job2, this.Loc2).subscribe((data1: any[]) => {
+    this.dl= data1;
+console.log(data1);  
+
+  }); 
+  //  constructor(private stud: Service){  
+  //           this.stud.getPosts().subscribe((data: any[]) => {
+  //                this.studs = data;
+	//          console.log(data);  
+	//     }); 
 }
+    ngOnInit() { }
+  
+  }
+  
+
+
+
 
 
 
@@ -49,274 +85,413 @@ export class AddEmployeeComponent {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Add Employee</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            margin: 20px auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Add Employee</h1>
-    <form action="employee-service/add" method="POST">
-        <!-- Employee input fields: Name, ID, etc. -->
-        <label for="employeeName">Name:</label>
-        <input type="text" id="employeeName" name="employeeName" required><br>
+    <h1>Employee List</h1>
 
-        <label for="employeeID">Employee ID:</label>
-        <input type="text" id="employeeID" name="employeeID" required><br>
+    <h2>Employee Details (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>EmpID</th>
+                <th>First Name</th>
+                <th>Job</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let s of studs">
+                <td>{{s.empID}}</td>
+                <td>{{s.firstName}}</td>
+                <td>{{s.job}}</td>
+                <td>{{s.loc}}</td>
+            </tr>
+        </tbody>
+    </table>
 
-        <!-- Add more input fields as needed -->
+    <hr>
 
-        <input type="submit" value="Add Employee">
-    </form>
+    <h2>Employee List (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Employee</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let s of studs">
+                <td>{{s | json}}</td>
+            </tr>
+        </tbody>
+    </table>
 </body>
-</html>
-
-
-
-
-3. Removecomponent.ts
-
-
-
-import { Component } from '@angular/core';
-import { EmployeeService } from '../employee.service';
-
-@Component({
-  selector: 'app-remove-employee',
-  templateUrl: './remove-employee.component.html',
-})
-export class RemoveEmployeeComponent {
-  constructor(private employeeService: EmployeeService) {}
-
-  removeEmployee(employeeId: number): void {
-    this.employeeService.removeEmployee(employeeId).subscribe(
-      (response) => {
-        console.log('Employee removed successfully', response);
-        // Handle success, update the UI, or navigate to another component.
-      },
-      (error) => {
-        console.error('Error removing employee', error);
-        // Handle error, display an error message, etc.
-      }
-    );
-  }
-}
 
 
 
 
 
-4. Removecomponent.html
+
+
+
+
+
+
+
+
 
 
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Remove Employee</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 80%; /* Reduce table width to make it more compact */
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        th:first-child, td:first-child {
+            text-align: left; /* Left-align the first column */
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Remove Employee</h1>
-    <form action="employee-service/remove" method="POST">
-        <!-- Input field for employee ID to remove -->
-        <label for="employeeID">Employee ID:</label>
-        <input type="text" id="employeeID" name="employeeID" required><br>
-        
-        <input type="submit" value="Remove Employee">
-    </form>
+    <h1>Employee List</h1>
+
+    <h2>Employee Details (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>EmpID</th>
+                <th>First Name</th>
+                <th>Job</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let u of up">
+                <td>{{u.empID}}</td>
+                <td>{{u.firstName}}</td>
+                <td>{{u.job}}</td>
+                <td>{{u.loc}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>Employee List (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Employee</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let u of up">
+                <td>{{u | json}}</td>
+            </tr>
+        </tbody>
+    </table>
 </body>
 </html>
 
 
 
-5. Updatecomponent.ts
-
-
-
-import { Component } from '@angular/core';
-import { EmployeeService } from '../employee.service';
-
-@Component({
-  selector: 'app-update-employee',
-  templateUrl: './update-employee.component.html',
-})
-export class UpdateEmployeeComponent {
-  constructor(private employeeService: EmployeeService) {}
-  updateEmployee(employeeId: number, employeeData: any): void {
-    this.employeeService.updateEmployee(employeeId, employeeData).subscribe(
-      (response) => {
-        console.log('Employee updated successfully', response);
-        // Handle success, reset the form, or navigate to another component.
-      },
-      (error) => {
-        console.error('Error updating employee', error);
-        // Handle error, display an error message, etc.
-      }
-    );
-  }  
-  }
 
 
 
 
 
-6. Updatecomponent.html
 
 
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Update Employee</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            margin: 20px auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Update Employee</h1>
-    <form action="employee-service/update" method="POST">
-        <!-- Input fields for updating employee details -->
-        <label for="employeeID">Employee ID:</label>
-        <input type="text" id="employeeID" name="employeeID" required><br>
+    <h1>Employee List</h1>
 
-        <!-- Add more input fields for updates (e.g., name, department, etc.) -->
+    <h2>DELETE (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>EmpID</th>
+                <th>First Name</th>
+                <th>Job</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let d of dl">
+                <td>{{d.empID}}</td>
+                <td>{{d.firstName}}</td>
+                <td>{{d.job}}</td>
+                <td>{{d.loc}}</td>
+            </tr>
+        </tbody>
+    </table>
 
-        <input type="submit" value="Update Employee">
-    </form>
+    <hr>
+
+    <h2>Employee List (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Employee</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let d of dl">
+                <td>{{d | json}}</td>
+            </tr>
+        </tbody>
+    </table>
 </body>
-</html>
 
 
 
-
-
-
-7. Readcomponent.ts:      
-
-
-
-import { Component, OnInit } from '@angular/core';
-import { EmployeeService } from '../employee.service';
-
-@Component({
-  selector: 'app-read-employee',
-  templateUrl: './read-employee.component.html',
-  styleUrls: ['./read-employee.component.css']
-})
-export class ReadEmployeeComponent implements OnInit {
-  employees: any[] = []; // Define the employees array to store data
-
-  constructor(private employeeListService: EmployeeService) {}
-
-  ngOnInit() {
-    // Fetch the list of employees from the service when the component initializes
-    this.employeeListService.getEmployees().subscribe(
-      (data: any) => {
-        this.employees = data; // Assign the retrieved data to the employees array
-      },
-      error => {
-        console.error('Error fetching employees:', error);
-      }
-    );
-  }
-}
-
-
-
-
-8. readcomponent.html
-
-
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Read Employee</title>
-</head>
-<body>
-    <h1>Read Employee</h1>
-    <form action="employee-service/read" method="POST">
-        <!-- Input field for employee ID or other search criteria -->
-        <label for="employeeSearch">Search by Employee ID or Name:</label>
-        <input type="text" id="employeeSearch" name="employeeSearch" required><br>
-        
-        <input type="submit" value="Search Employee">
-    </form>
-
-    <!-- Display area for employee information -->
-    <div id="employeeDetails">
-        <!-- Employee details will be displayed here -->
-    </div>
-</body>
-</html>
-
-
-
-STEP 4: //SerVice code//
-
-
-
-1. employeeservice.ts
-
-
-
-
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-
-@Injectable({
-  providedIn: 'root'
-})
-export class EmployeeService {
-  private apiBaseUrl = 'your-api-url'; // Replace with the actual API URL
-
-  constructor(private http: HttpClient) { }
-
-  // Add an employee
-  addEmployee(employeeData: any) { // Define a type for employeeData
-    return this.http.post(`${this.apiBaseUrl}/add-employee`, employeeData);
-  }
-
-  // Other methods with typed parameters
-  removeEmployee(employeeId: number) {
-    return this.http.delete(`${this.apiBaseUrl}/remove-employee/${employeeId}`);
-  }
-
-  updateEmployee(employeeId: number, employeeData: any) { // Define a type for employeeData
-    return this.http.put(`${this.apiBaseUrl}/update-employee/${employeeId}`, employeeData);
-  }
-
-  getEmployees() {
-    return this.http.get(`${this.apiBaseUrl}/read-employees`);
-  }
-}
-
-
-
-2. Appmodule.ts
-
+3. appmodule.ts
 
 
 import { NgModule,  NO_ERRORS_SCHEMA} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
+import { EmployeeService } from './employee.service';
+import { UpdateService } from './update.service';
+
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AddEmployeeComponent } from './add-employee/add-employee.component';
-import { RemoveEmployeeComponent } from './remove-employee/remove-employee.component';
-import { UpdateEmployeeComponent } from './update-employee/update-employee.component';
-import { ReadEmployeeComponent } from './read-employee/read-employee.component';
+import { HttpClientModule } from '@angular/common/http';
+import { DeleteService } from './delete.service';
+// import { AddEmployeeComponent } from './add-employee/add-employee.component';
+// import { RemoveEmployeeComponent } from './remove-employee/remove-employee.component';
+// import { UpdateEmployeeComponent } from './update-employee/update-employee.component';
+// import { ReadEmployeeComponent } from './read-employee/read-employee.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    AddEmployeeComponent,
-    RemoveEmployeeComponent,
-    UpdateEmployeeComponent,
-    ReadEmployeeComponent
+    // AddEmployeeComponent,
+    // RemoveEmployeeComponent,
+    // UpdateEmployeeComponent,
+    // ReadEmployeeComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [EmployeeService, UpdateService, DeleteService],
   schemas: [NO_ERRORS_SCHEMA],  
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+
+
+
+
+4. deleteservice.ts
+
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class DeleteService {
+
+ 
+  // apiurl= 'https://localhost:44327/api/Emp';
+
+  constructor(private httpClient:HttpClient) { }
+  getPosts2(EmpID: number, FirstName: string, JOB: string, LOC: string): Observable<any[]> {
+     return this.httpClient.get<any[]>("https://localhost:44327/api/Emp/DeleteEmployees");
+}
+}
+
+
+
+5. employeeservice.ts
+
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+
+@Injectable({
+  providedIn: 'root'
+})
+
+
+ export class EmployeeService {
+ apiurl= 'https://localhost:44327/api/Emp';
+  constructor(private httpClient:HttpClient) { }
+   getPosts(): Observable<any[]> {
+    return this.httpClient.get<any[]>('https://localhost:44327/api/Emp/Emps');
+
+   }
+  }
+
+      
+// export class EmployeeService {  
+//   url = 'http://localhost:44327/Api/Emp';  
+//   constructor(private http: HttpClient) { }  
+//   getPosts(): Observable<any[]> {  
+//     return this.http.get<any[]>(this.url + '/Emps');  
+//   }  
+//   }
+
+
+
+  // getPosts1(EmpID: number, FirstName: string, JOB: string, LOC: string): Observable<any> {
+  //   //  return this.httpClient.get<any>("https://localhost:44327/api/Emp/updateEmp/"+EmpID+"/"+FirstName+"/"+JOB+"/"+LOC);
+  //    return this.httpClient.get<any>(`https://localhost:44327/api/Emp/updateEmp/1/Ria/Clerk1/Mumbai`);
+  // }
+
+
+
+
+
+
+6. Updateservice.ts
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class UpdateService {
+
+  apiurl= 'https://localhost:44327/api/Emp';
+
+  constructor(private httpClient:HttpClient) { }
+  getPosts1(EmpID: number, FirstName: string, JOB: string, LOC: string): Observable<any[]> {
+     return this.httpClient.get<any[]>("https://localhost:44327/api/Emp/updateEmp/"+EmpID+"/"+FirstName+"/"+JOB+"/"+LOC);
+}
+}
+
+
+
+
