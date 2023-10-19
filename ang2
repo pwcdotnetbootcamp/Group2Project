@@ -1,0 +1,474 @@
+appcomponent.ts
+
+
+
+
+import { Component, OnInit } from '@angular/core';
+import { EmployeeService } from './employee.service'; 
+import { HttpClient } from '@angular/common/http'; 
+import { UpdateService } from './update.service';
+import { DeleteService } from './delete.service';
+import { InsertService } from './insert.service';
+
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent implements OnInit {  
+  public studs: any[]=[{}];
+  public up: any[]= [{}]; 
+  public dl: any[]= [{}];
+  public ins: any[]= [{}];
+  public EmpID: number= 3;
+  public FirstName: string= "Nisha";
+  public Job: string= "Salesman";
+  public Loc: string= "Mumbai";
+
+  public EmpID2: number= 3;
+ public FirstName2: string= "Nisha";
+ public Job2: string= "Salesman";
+ public Loc2: string= "Mumbai";
+
+ public EmpID3: number= 6;
+ public FirstName3: string= "Poulomi";
+ public Job3: string= "Analyst";
+ public Loc3: string= "CHICAGO";
+
+  constructor(private employee: EmployeeService, private update: UpdateService, private dell: DeleteService, private insert: InsertService){  
+
+        this.employee.getPosts().subscribe((data: any[]) => {
+             this.studs = data;
+       console.log(data);  
+        });
+
+      this.update.getPosts1(this.EmpID, this.FirstName, this.Job, this.Loc).subscribe((data1: any[]) => {
+        this.up= data1;
+  console.log(data1);  
+});
+
+  this.dell.getPosts2(this.EmpID2, this.FirstName2, this.Job2, this.Loc2).subscribe((data2: any[]) => {
+    this.dl= data2;
+console.log(data2);  
+});
+
+this.insert.getPosts3(this.EmpID, this.FirstName, this.Job, this.Loc).subscribe((data1: any[]) => {
+  this.ins= data1;
+console.log(data1);  
+});
+
+
+  //  constructor(private stud: Service){  
+  //           this.stud.getPosts().subscribe((data: any[]) => {
+  //                this.studs = data;
+	//          console.log(data);  
+	//     }); 
+}
+    ngOnInit() { }
+  
+  }
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            margin: 20px auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Employee List</h1>
+
+    <h2>Employee Details (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>EmpID</th>
+                <th>First Name</th>
+                <th>Job</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let s of studs">
+                <td>{{s.empID}}</td>
+                <td>{{s.firstName}}</td>
+                <td>{{s.job}}</td>
+                <td>{{s.loc}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>Employee List (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Employee</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let s of studs">
+                <td>{{s | json}}</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 80%; /* Reduce table width to make it more compact */
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        th:first-child, td:first-child {
+            text-align: left; /* Left-align the first column */
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <h1>UPDATE EMPLOYEE</h1>
+
+    <h2>Update Details (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>EmpID</th>
+                <th>First Name</th>
+                <th>Job</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let u of up">
+                <td>{{u.empID}}</td>
+                <td>{{u.firstName}}</td>
+                <td>{{u.job}}</td>
+                <td>{{u.loc}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>Update Employee (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Employee</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let u of up">
+                <td>{{u | json}}</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            margin: 20px auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <h1>DELETE EMPLOYEE</h1>
+
+    <h2>DELETE (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>EmpID</th>
+                <th>First Name</th>
+                <th>Job</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let d of dl">
+                <td>{{d.empID}}</td>
+                <td>{{d.firstName}}</td>
+                <td>{{d.job}}</td>
+                <td>{{d.loc}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>Delete Employee (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Employee</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let d of dl">
+                <td>{{d | json}}</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+addcomponent.html
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            margin: 20px auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <h1>INSERT EMPLOYEE//</h1>
+
+    <h2>Insert Details (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>EmpID</th>
+                <th>First Name</th>
+                <th>Job</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let i of ins">
+                <td>{{i.empID}}</td>
+                <td>{{i.firstName}}</td>
+                <td>{{i.job}}</td>
+                <td>{{i.loc}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+    <h2>INSERT EMPLOYEE (JSON)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Employee</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let i of ins">
+                <td>{{i | json}}</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+
+
+
+
+
+
+
+
+  
+
+
+
