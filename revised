@@ -1,0 +1,347 @@
+emp controller
+
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using EmpLib.Models;
+using EmpLib;
+using Microsoft.AspNetCore.Cors;
+
+namespace Practice5.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class EmpController : ControllerBase
+    {
+
+        [HttpGet]
+        [Route("Emps")]
+        [EnableCors("AllowOrigin")]
+        public IEnumerable<Employee> GetEmp()
+        {
+            return Class1.getEmps();
+
+        }
+
+
+        [HttpGet]
+        
+        [Route("updateEmp/{EmpID:int}/{FirstName}/{JOB}/{LOC}")]
+        [EnableCors("AllowOrigin")]
+        public IEnumerable<Employee> UpdateEmp(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            //if (EmpLib.Class1.update(EmpID, FirstName, JOB, LOC))
+            //{
+            //    return "Employee Table has been updated";
+            //}
+            //return "Failed !!!";
+            return (EmpLib.Class1.update(EmpID, FirstName, JOB, LOC));
+        }
+
+
+        [HttpGet]
+        [Route("DeleteEmployees/{EmpID:int}/{FirstName}/{JOB}/{LOC}")]
+        [EnableCors("AllowOrigin")]
+        public IEnumerable<Employee> DeleteEmp(int EmpID, string FirstName, string JOB, string LOC)
+        { 
+        //    if (EmpLib.Class1.delete(EmpID, FirstName, JOB, LOC))
+        //    {
+        //        return "Employee Data has been deleted";
+        //    }
+        //    return "Failed !!!";
+        return (EmpLib.Class1.delete(EmpID, FirstName, JOB, LOC));
+        }
+
+
+        [HttpGet]
+        [Route("InsertEmployees/{EmpID:int}/{FirstName}/{JOB}/{LOC}")]
+        [EnableCors("AllowOrigin")]
+        public IEnumerable<Employee> InsertEmp(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            //if (EmpLib.Class1.insert(EmpID, FirstName, JOB, LOC))
+            //{
+            //    return "Employee has been inserted";
+            //}
+            //return "Failed !!!";
+            return (EmpLib.Class1.insert(EmpID, FirstName, JOB, LOC));
+        }
+
+    }
+}
+
+
+employee.cs
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace EmpLib.Models
+{
+    public class Employee
+    {
+        public int EmpID { get; set; }
+        public string FirstName { get; set; }
+
+        public string JOB { get; set; }
+
+        public string LOC { get; set; }
+
+        public Employee() { }
+
+        public Employee(int empID, string firstName, string jOB, string lOC)
+        {
+            EmpID = empID;
+            FirstName = firstName;
+            JOB = jOB;
+            LOC = lOC;
+        }
+    }
+}
+
+
+class1.cs
+
+using System;
+using System.Data.SqlClient;
+using System.Data;
+using System.Collections.Generic;
+using EmpLib.Models;
+using System.Reflection.Metadata.Ecma335;
+
+namespace EmpLib
+{
+    public class Class1
+    {
+        public static List<Employee> employees = new List<Employee>();
+
+        public static List<Employee> update(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            List<Employee> Employee1 = new List<Employee>();
+            try
+            {
+                SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True");
+                con.Open();
+
+                SqlCommand cmd = new SqlCommand($"Update Emp set JOB='{JOB}' where EmpID='{EmpID}'", con);
+                SqlCommand cmd2 = new SqlCommand($"Update Emp set FirstName='{FirstName}' where EmpID='{EmpID}'", con);
+                SqlCommand cmd3 = new SqlCommand($"Update Emp set LOC='{LOC}' where EmpID='{EmpID}'", con);
+
+                int recUp = cmd.ExecuteNonQuery();
+                int recUp2 = cmd2.ExecuteNonQuery();
+                int recUp3 = cmd3.ExecuteNonQuery();
+                Employee1.Add(new Employee(EmpID, FirstName, JOB, LOC));
+                return Employee1;
+                
+          
+            }
+            catch (Exception e)
+            { return null; }
+        }
+
+
+
+        public static List<Employee> delete(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            List<Employee> Employee1 = new List<Employee>();
+            try
+            {
+                SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True");
+                con.Open();
+
+                SqlCommand cmd = new SqlCommand($"Delete from Emp where EmpID='{EmpID}' and FirstName='{FirstName}' and JOB='{JOB}' and LOC='{LOC}'", con);
+
+                int recDel = cmd.ExecuteNonQuery();
+                Employee1.Add(new Employee(EmpID, FirstName, JOB, LOC));
+                return Employee1;
+            }
+            catch (Exception e)
+            { return null; }
+        }
+
+
+        public static List<Employee> insert(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            List<Employee> Employee1 = new List<Employee>();
+            try
+            {
+                SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True");
+                con.Open();
+
+                //SqlCommand cmd = new SqlCommand("Insert into Emp values(@EmpID, @FirstName, @JOB, @LOC)", con);
+                //cmd.CommandType = CommandType.Text;
+                //cmd.Parameters.AddWithValue("@EmpID", EmpID);
+                //cmd.Parameters.AddWithValue("@FirstName", FirstName);
+                //cmd.Parameters.AddWithValue("@JOB", JOB);
+                //cmd.Parameters.AddWithValue("@LOC", LOC);
+                SqlCommand cmd = new SqlCommand($"Insert into Emp values('{EmpID}', '{FirstName}', '{JOB}', '{LOC}')", con);
+
+                int recDel = cmd.ExecuteNonQuery();
+                Employee1.Add(new Employee(EmpID, FirstName, JOB, LOC));
+                return Employee1;
+            }
+            catch (Exception e) 
+            { return null; }
+        }
+
+
+
+
+        public static List<Employee> getEmps()
+        {
+            try
+            {
+                SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True");
+                con.Open();
+
+                SqlCommand cmd = new SqlCommand("Select * from Emp", con);
+                cmd.CommandType = CommandType.Text;
+
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                employees = new List<Employee>();
+
+                while (rdr.Read())
+                {
+                    Employee e = new Employee();
+                    //e.id = Convert.ToInt32(rdr["id"]);
+                    e.EmpID = rdr.GetInt32("EmpID");
+                    e.FirstName = rdr.GetString("FirstName");
+                    e.JOB = rdr.GetString("JOB");
+                    e.LOC = rdr.GetString("LOC");
+
+                    employees.Add(e);
+                }
+
+                return employees;
+            }
+
+            catch { return null; }
+
+        }
+
+    }
+}
+
+
+
+
+startup.cs
+
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Project5
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+
+            services.AddControllers();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Project5", Version = "v1" });
+            });
+            //I have Added AddCors
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin",
+                    options =>
+                        options.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                         .AllowAnyMethod());
+            });
+        }
+
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Project5 v1"));
+            }
+            app.UseRouting();
+            //I have Added in between Routing and Redirection
+            app.UseCors(x => x
+.AllowAnyOrigin()
+.AllowAnyMethod()
+.AllowAnyHeader());
+
+            // app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
+
+            //app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+        }
+    }
+}
+
+
+
+program.cs
+
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Project5
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+    }
+}
