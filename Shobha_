@@ -1,0 +1,915 @@
+⦁	EmpController.cs
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Cors;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using EmpLib.Models;
+using EmpLib;
+
+
+namespace Practice5.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class EmpController : ControllerBase
+    {          
+
+        [HttpGet]
+        
+        [Route("Emps")]
+        [EnableCors("AllowOrigin")]
+        public IEnumerable<Employee> GetEmp()
+        {        
+           return Class1.getEmps();
+            
+        }
+
+
+        [HttpGet]
+        [Route("updateEmp/{EmpID:int}/{FirstName}/{JOB}/{LOC}")]
+        [EnableCors("AllowOrigin")]
+        public IEnumerable<Employee> UpdateEmp(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            return (EmpLib.Class1.update(EmpID, FirstName, JOB, LOC));
+        }
+
+
+        [HttpGet]
+        [Route("DeleteEmployees/{EmpID:int}/{FirstName}/{JOB}/{LOC}")]
+        [EnableCors("AllowOrigin")]
+        public IEnumerable<Employee> DeleteEmp(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            return (EmpLib.Class1.delete(EmpID, FirstName, JOB, LOC));
+        }
+
+
+        [HttpGet]
+        [Route("InsertEmployees/{EmpID:int}/{FirstName}/{JOB}/{LOC}")]
+        [EnableCors("AllowOrigin")]
+        public IEnumerable<Employee> InsertEmp(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            return (EmpLib.Class1.insert(EmpID, FirstName, JOB, LOC));
+        }
+
+    }
+}
+
+
+
+⦁	Class1.cs
+
+using System;
+using System.Data.SqlClient;
+using System.Data;
+using System.Collections.Generic;
+using EmpLib.Models;
+
+
+namespace EmpLib
+{
+    public class Class1
+    {
+        public static List<Employee> employees = new List<Employee>();              
+
+        public static List<Employee> update(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            List<Employee> E1 = new List<Employee>();
+            try
+            {
+                //create an SQL connection by passing the required connection string
+                //Our target database is PracticeDB
+                SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True"); 
+
+                con.Open();  //Connection is opened
+
+                //Create the SQL Commands for updating the data in our table -> Represents a Transact-SQL statement
+                //We have set the our connection opened previously as the Connection for these SQL Commamnds
+                SqlCommand cmd = new SqlCommand($"Update Emp set JOB='{JOB}' where EmpID='{EmpID}'", con);   
+                SqlCommand cmd2 = new SqlCommand($"Update Emp set FirstName='{FirstName}' where EmpID='{EmpID}'", con);  
+                SqlCommand cmd3 = new SqlCommand($"Update Emp set LOC='{LOC}' where EmpID='{EmpID}'", con);
+
+                //We now call ExecuteNonQuery, which executes a T-SQL statement against the given Connection and returns the no. of rows affected
+                //Here we pass it the Connection string and Query string
+                int recUp = cmd.ExecuteNonQuery();
+                int recUp2 = cmd2.ExecuteNonQuery();  
+                int recUp3 = cmd3.ExecuteNonQuery();
+
+                E1.Add(new Employee(EmpID, FirstName, JOB, LOC));
+                return E1;  
+            }
+            catch (Exception e)
+            { return null; }
+            }
+
+
+        
+            public static List<Employee> delete(int EmpID, string FirstName, string JOB, string LOC)
+            {
+                List<Employee> E1 = new List<Employee>();
+                try
+                {
+                    //create an SQL connection by passing the required connection string
+                    //Our target database is PracticeDB
+                    SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True");
+
+                    con.Open(); //Connection is opened
+
+                    //Create the SQL Commands for deleting the data in our table -> Represents a Transact-SQL statement
+                    //We have set the our connection opened previously as the Connection for these SQL Commamnds
+                    SqlCommand cmd = new SqlCommand($"Delete from Emp where EmpID='{EmpID}' and FirstName='{FirstName}' and JOB='{JOB}' and LOC='{LOC}'", con);
+
+                    //We now call ExecuteNonQuery, which executes a T-SQL statement against the given Connection and returns the no. of rows affected
+                    //Here we pass it the Connection string and Query string    
+                    int recDel = cmd.ExecuteNonQuery();
+
+                    E1.Add(new Employee(EmpID, FirstName, JOB, LOC));
+                    return E1;
+            }
+                catch (Exception e) { return null; }
+            }
+
+
+        public static List<Employee> insert(int EmpID, string FirstName, string JOB, string LOC)
+        {
+            List<Employee> E1 = new List<Employee>();
+            try
+            {
+                SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True");
+                con.Open();
+
+                SqlCommand cmd = new SqlCommand($"Insert into Emp values('{EmpID}', '{FirstName}', '{JOB}', '{LOC}')", con);
+
+                int recDel = cmd.ExecuteNonQuery();
+
+                E1.Add(new Employee(EmpID, FirstName, JOB, LOC));
+                return E1;
+            }
+            catch (Exception e) { return null; }
+        }
+
+
+
+
+        public static List<Employee> getEmps()
+        {
+            try
+            {                
+                SqlConnection con = new SqlConnection(@"Data Source=DESKTOP-O7LF2JA;Initial Catalog=PracticeDB;Integrated Security=True");
+                con.Open();
+
+                SqlCommand cmd = new SqlCommand("Select * from Emp", con);
+                cmd.CommandType = CommandType.Text;
+
+                SqlDataReader rdr = cmd.ExecuteReader(); //We create an SqlDataReader to read data from the SQL server
+
+                employees = new List<Employee>();
+
+                while (rdr.Read())   //will return true if there are more rows otherwise false
+                {
+                    Employee e = new Employee();
+                    //e.id = Convert.ToInt32(rdr["id"]);
+                    e.EmpID = rdr.GetInt32("EmpID");
+                    e.FirstName = rdr.GetString("FirstName");
+                    e.JOB = rdr.GetString("JOB");
+                    e.LOC = rdr.GetString("LOC");
+
+                    employees.Add(e);
+                }
+
+                return employees;
+            }
+
+            catch { return null; }
+
+        }
+
+    }
+}
+
+
+
+
+
+⦁	Startup.cs
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Cors;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Practice5
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+
+            services.AddControllers();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Practice5", Version = "v1" });
+            });
+
+            //I have Added AddCors
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin",
+                    options =>
+                        options.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                         .AllowAnyMethod());
+            });
+
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Practice5 v1"));
+            }
+
+            app.UseRouting();
+
+            //I have Added in between Routing and Redirection
+            app.UseCors(x => x
+.AllowAnyOrigin()
+.AllowAnyMethod()
+.AllowAnyHeader());
+
+            app.UseHttpsRedirection();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+        }
+    }
+}
+
+
+
+
+⦁	Employee.cs
+
+              using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace EmpLib.Models
+{
+    public class Employee
+    {
+        public int EmpID { get; set; }
+        public string FirstName { get; set; }
+        public string JOB { get; set; }
+        public string LOC { get; set; }
+        public Employee() { }
+        public Employee(int empID, string firstName, string jOB, string lOC)
+        {   EmpID = empID;
+            FirstName = firstName;
+            JOB = jOB;
+            LOC = lOC;
+        }
+    }
+}
+
+
+
+
+
+
+⦁	employee.service.ts
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class EmployeeService {
+  
+  constructor(private httpClient:HttpClient) { }
+
+   getPosts(): Observable<any[]> {
+    return this.httpClient.get<any[]>('https://localhost:44398/api/Emp/Emps');
+  }
+}
+
+
+
+
+⦁	update.service.ts
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class UpdateService {
+
+  constructor(private httpClient:HttpClient) { }
+
+  getPosts1(EmpID: number, FirstName: string, JOB: string, LOC: string): Observable<any[]> {
+     return this.httpClient.get<any[]>("https://localhost:44398/api/Emp/updateEmp/"+EmpID+"/"+FirstName+"/"+JOB+"/"+LOC);
+  }
+}
+
+
+
+
+⦁	delete.service.ts
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class DeleteService {
+
+  constructor(private httpClient:HttpClient) { }
+
+  getPosts2(EmpID: number, FirstName: string, JOB: string, LOC: string): Observable<any[]> {
+     return this.httpClient.get<any[]>("https://localhost:44398/api/Emp/DeleteEmployees/"+EmpID+"/"+FirstName+"/"+JOB+"/"+LOC);
+  }
+}
+
+
+
+
+⦁	insert.service.ts
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+
+@Injectable({
+  providedIn: 'root'
+})
+export class InsertService {
+
+  constructor(private httpClient:HttpClient) { }
+
+  getPosts3(EmpID: number, FirstName: string, JOB: string, LOC: string): Observable<any[]> {
+     return this.httpClient.get<any[]>("https://localhost:44398/api/Emp/InsertEmployees/"+EmpID+"/"+FirstName+"/"+JOB+"/"+LOC); 
+  }
+}
+
+
+
+
+
+⦁	app.module.ts
+
+import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+
+import { EmployeeService } from './employee.service';
+import { UpdateService } from './update.service';
+import { DeleteService } from './delete.service';
+import { InsertService } from './insert.service';
+
+import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
+
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    AppRoutingModule,
+    HttpClientModule
+  ],
+  providers: [EmployeeService, UpdateService, DeleteService, InsertService],
+  schemas: [NO_ERRORS_SCHEMA], 
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+
+
+
+
+
+⦁	app.component.ts
+
+import { Component } from '@angular/core';
+import { EmployeeService } from './employee.service'; 
+import { HttpClient } from '@angular/common/http'; 
+import { UpdateService } from './update.service';
+import { DeleteService } from './delete.service';
+import { InsertService } from './insert.service';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  title = 'Employee';
+
+//vars used to hide/show respective divs  
+  public showInfo1: Boolean = false;  
+  public showInfo2: Boolean = false;
+  public showInfo3: Boolean = false;  
+  public showInfo4: Boolean = false;
+  public showInfo5: Boolean = false;
+  
+//vars used for capturing the Employee lists
+  public studs: any[]=[{}];
+  public up: any[]= [{}]; 
+  public dl: any[]= [{}];
+  public ins: any[]= [{}];
+
+//vars used to store the details entered in the Update Employee form 
+  public EmpID: number= 0;
+  public FirstName: string= "";
+  public Job: string= "";
+  public Loc: string= "";
+
+  
+//vars used to store the details entered in the Delete Employee form
+ public EmpID2: number= 0;
+ public FirstName2: string= "";
+ public Job2: string= "";
+ public Loc2: string= "";
+
+
+//vars used to store the details entered in the Insert Employee form  
+ public EmpID3: number= 0;
+ public FirstName3: string= "";
+ public Job3: string= "";
+ public Loc3: string= "";
+
+
+constructor(private employee: EmployeeService, private update: UpdateService, private dell: DeleteService, private insert: InsertService
+){ }
+
+ngOnInit() { }
+
+
+//Function to Display the Employee List from the database, will be called when the View List button is clicked
+public viewIt() : void {  
+  console.log('You clicked on the button to view List...');  
+  alert("Employee List will now be displayed"); 
+
+  this.showInfo1 = true;
+  this.employee.getPosts().subscribe((data: any[]) => {
+    this.studs = data;
+     console.log(data);  
+  });
+}
+
+
+//Function to Add a new Employee in the database, will be called when the Add Employee button is clicked
+public insertIt() : void {  
+  console.log('You clicked on the button to Insert data...');  
+  alert("New Employee has been Inserted in the Database as shown"); 
+  
+  this.showInfo4 = true;
+  this.insert.getPosts3(this.EmpID3, this.FirstName3, this.Job3, this.Loc3).subscribe((data3: any[]) => {
+    this.ins= data3;
+    console.log(data3);  
+  });}
+//Function to Update an existing Employee in the database, will be called when the Update Employee button is clicked
+public updateIt() : void {  
+  console.log('You clicked on the button to Update data...');  
+  alert("The Employee Data has been Updated in the Database as shown");     
+  
+  this.showInfo2 = true;
+  this.update.getPosts1(this.EmpID, this.FirstName, this.Job, this.Loc).subscribe((data1: any[]) => {
+    this.up= data1;
+    console.log(data1);  
+  });
+}
+
+
+//Function to Delete an existing Employee from the database, will be called when the Delete Employee button is clicked
+public deleteIt() : void {  
+  console.log('You clicked on the button to Delete data...');  
+  alert("The following Employee Data has been Deleted from the Database"); 
+      
+  this.showInfo3 = true;
+  this.dell.getPosts2(this.EmpID2, this.FirstName2, this.Job2, this.Loc2).subscribe((data2: any[]) => {
+    this.dl= data2;
+    console.log(data2);      
+  });
+ }   
+}
+
+
+
+
+
+
+⦁	app.component.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            /* background-color: #f7f7f7; */
+            background-image: url(../assets/Images/EMSphoto2.jpg);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;            
+        }
+
+        div {
+            text-align: center;
+        }
+
+        #myHeader {
+          background-image: url(../assets/Images/EMSphoto4.jpg);
+          background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: scroll;            
+        }
+
+        input {
+            text-align: left;
+        }
+
+        h1 {
+            text-align: center;
+            color: blueviolet;
+            font-family: sans-serif;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            color: white; font-family: sans-serif;
+        }
+
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            background-color: black;
+            margin: 20px auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        table, th, td {
+            border: 5px solid #ddd;
+        }
+
+        input[type = button] {
+          color: blueviolet;
+          background-color: yellow;
+          padding: 15px 32px;
+          font-size: 20px;
+          border-radius: 10px;
+        }
+
+        input[type = text] {
+          box-sizing: border-box;
+          margin: 8px 0;
+          width: 75%;
+          color: blueviolet;
+          background-color: pink;
+          padding: 15px 32px;
+          font-size: 20px;
+          border-radius: 10px;          
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e0e0e0;
+        }
+
+    </style>
+</head>
+
+
+
+
+<body>
+
+
+<!-- *********************** Index Page ********************** -->
+  
+<div  id="myHeader">
+  
+<!-- *********************** Menu ********************** -->  
+  <h2 style="color: white; font-size: 25px; font-family:cursive;">
+  <table style="background-color: white; width: 100%;">
+    <tr>
+      <td style="background-color: orange; padding: 50px;"><a href="#Emp1">View Employee List</a></td>    
+    
+      <td style="background-color: rgb(77, 231, 77); padding: 50px;"><a href="#Emp2">Add new Employee in the Database</a></td>
+
+      <td style="background-color: rgba(230, 90, 10, 0.911);  padding: 50px;"><a href="#Emp3">Update Existing Employee in the Database</a></td>
+
+      <td style="background-color: rgb(9, 9, 97);  padding: 50px;"><a href="#Emp4">Delete Existing Employee from the Database</a></td>
+    </tr>
+  </table>
+</h2>
+  <br><br><br><br><br><br><br><br><br><br><br><br>
+  <br><br><h1 style="font-size: 150px; color: tomato; -webkit-text-stroke: 5px black;"> Welcome to our Employee Management System </h1>  
+  <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</div> 
+
+
+
+<!-- ****************** View Employee List Div ********************** -->
+
+  <div id="Emp1">
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <table>    
+      <h1 style="color: white; font-family: sans-serif;">View the Employee List in the Database </h1>
+  <h2>
+      <input type="button" value="View List" (click)="viewIt()" />  
+      <br /><br />      
+  </h2>
+  </table>
+
+  <table style="background-color: pink; font-size: 25px; width: 25%"><a href="#T1"> Go to Generated List</a></table>
+  <table style="background-color: pink; font-size: 25px; width: 25%"><a href="#myHeader">Go back to the Index Page</a></table>
+
+  </div>
+
+
+
+<!-- ****************** Add New Employee Div ********************** -->
+
+  <div id="Emp2">
+
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <table>
+      <br>
+      <br>
+      <table  style="border: 5px; background-color: plum; width: 90%;">
+    <h1> Add New Employee in the Database </h1></table>
+    <br>
+  <h2>
+      Enter Employee's ID: <br>
+      <input type="text" [(ngModel)]="EmpID3" /> <br/><br/>   
+      Enter Employee's FirstName: <br>
+      <input type="text" [(ngModel)]="FirstName3" /> <br/><br/> 
+      Enter Employee's Job Role: <br>
+      <input type="text" [(ngModel)]="Job3" /> <br/><br/> 
+      Enter Employee's Job Location: <br>
+      <input type="text" [(ngModel)]="Loc3" /> <br/><br/>  
+      <input type="button" value="Add Employee" (click)="insertIt()" />  
+      <br /><br />    
+  </h2>
+</table>
+
+<table style="background-color: pink; font-size: 25px; width: 25%"><a href="#T4"> Go to Generated List</a></table>
+<table style="background-color: pink; font-size: 25px; width: 25%"><a href="#myHeader">Go back to the Index Page</a></table>
+  
+  </div>
+
+
+
+<!-- **************** Update Existing Employee Div ******************* -->
+
+  <div id="Emp3">
+
+    <br><br><br><br><br><br><br><br><br><br><br>
+  <table>
+    <br>
+      <br>
+      <table  style="border: 5px; background-color: plum; width: 90%;">
+    <h1>Update an Existing Employee in the Database: </h1></table>
+    <br>
+  <h2>
+      Enter Employee's ID: 
+      <input type="text" [(ngModel)]="EmpID" /> <br/><br/>   
+      Enter Employee's FirstName: 
+      <input type="text" [(ngModel)]="FirstName" /> <br/><br/> 
+      Enter your Employee's Job Role: 
+      <input type="text" [(ngModel)]="Job" /> <br/><br/> 
+      Enter your Employee's Job Location: 
+      <input type="text" [(ngModel)]="Loc" /> <br/><br/>  
+      <input type="button" value="Update Employee" (click)="updateIt()" />  
+      <br /><br />   
+  </h2>
+</table>
+
+<table style="background-color: pink; font-size: 25px; width: 25%"><a href="#T2"> Go to Generated List</a></table>
+<table style="background-color: pink; font-size: 25px; width: 25%"><a href="#myHeader">Go back to the Index Page</a></table>
+  
+  </div>
+
+
+
+<!-- **************** Delete Existing Employee Div ******************* -->
+
+  <div id="Emp4">
+
+    <br><br><br><br><br><br><br><br><br><br><br>
+    <table>
+      <br>
+      <br>
+    <table  style="border: 5px; background-color: plum; width: 90%;">
+  <h1>Delete an Existing Employee from the Database: </h1></table>
+  <br>
+<h2>
+    Enter Employee's ID: 
+    <input type="text" [(ngModel)]="EmpID2" /> <br/><br/>   
+    Enter Employee's FirstName: 
+    <input type="text" [(ngModel)]="FirstName2" /> <br/><br/> 
+    Enter Employee's Job Role: 
+    <input type="text" [(ngModel)]="Job2" /> <br/><br/> 
+    Enter Employee's Job Location: 
+    <input type="text" [(ngModel)]="Loc2" /> <br/><br/>  
+    <input type="button" value="Click" (click)="deleteIt()" />  
+    <br /><br />
+</h2>
+</table>
+
+<table style="background-color: pink; font-size: 25px; width: 25%"><a href="#T3"> Go to Generated List</a></table>
+<table style="background-color: pink; font-size: 25px; width: 25%"><a href="#myHeader">Go back to the Index Page</a></table>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+</div>
+
+
+
+<!-- ********** Div for displaying generated Employee List ********* -->
+
+  <div *ngIf="showInfo1" id="T1">
+
+    <h1 style="color: #fff; font-size: 40px;">Employee Details</h1>
+    <table style="background-color: #ddd;">
+        <thead>
+            <tr>
+                <th>EmpID</th>
+                <th>First Name</th>
+                <th>Job</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let s of studs">
+                <td>{{s.empID}}</td>
+                <td>{{s.firstName}}</td>
+                <td>{{s.job}}</td>
+                <td>{{s.loc}}</td>
+            </tr>
+        </tbody>
+    </table>      
+
+  </div>
+
+
+
+<!-- Div for displaying Employee details in JSON, we are not using this-->
+
+<!--  <div *ngIf="showInfo5">
+
+  <ul *ngFor="let s of studs">
+    <li>{{s | json}}</li>
+  </ul>
+
+  </div> -->
+
+
+
+<!-- ********** Div for displaying Updated Employee details ********* -->
+
+<div *ngIf="showInfo2" id="T2">
+
+    <h1 style="color: #fff; font-size: 40px;">Updated Employee Details</h1>
+
+    <table style="background-color: #ddd;">
+        <thead>
+            <tr>
+                <th>EmpID</th>
+                <th>First Name</th>
+                <th>Job</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let u of up">
+                <td>{{u.empID}}</td>
+                <td>{{u.firstName}}</td>
+                <td>{{u.job}}</td>
+                <td>{{u.loc}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+  </div>
+
+
+
+<!-- ********* Div for displaying Deleted Employee’s details ********* -->
+
+  <div *ngIf="showInfo3" id="T3">
+
+    <h1 style="color: #fff; font-size: 40px;">Deleted Employee's Details</h1>
+
+    <table style="background-color: #ddd;">
+        <thead>
+            <tr>
+                <th>EmpID</th>
+                <th>First Name</th>
+                <th>Job</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let d of dl">
+                <td>{{d.empID}}</td>
+                <td>{{d.firstName}}</td>
+                <td>{{d.job}}</td>
+                <td>{{d.loc}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+  </div>  
+
+
+
+<!-- ******** Div for displaying Inserted Employee’s details ********* -->
+
+  <div *ngIf="showInfo4" id="T4">
+
+    <h1 style="color: #fff; font-size: 40px;">Inserted Employee's Details</h1>
+
+    <table style="background-color: #ddd;">
+        <thead>
+            <tr>
+                <th>EmpID</th>
+                <th>First Name</th>
+                <th>Job</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let i of ins">
+                <td>{{i.empID}}</td>
+                <td>{{i.firstName}}</td>
+                <td>{{i.job}}</td>
+                <td>{{i.loc}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
+  </div>  
+}
+</body>
+</html>
